@@ -11,8 +11,8 @@ flake8:
 	flake8 zookeeper_locks tests
 
 startzk:
-	docker inspect django-zookeeper-locks-zk | grep '"Running": true' || \
-		docker run --name django-zookeeper-locks-zk \
+	docker inspect django-zk-locks-zk | grep '"Running": true' || \
+		docker run --name django-zk-locks-zk \
 		           --rm -p 2181:2181 -d \
 				   zookeeper:3.9
 
