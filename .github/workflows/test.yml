@@ -40,7 +40,7 @@ jobs:
 
     - name: coverage xml
       run: |
-        .tox/py/bin/coverage xml
+        python -m coverage xml
       if: ${{ matrix.python-version == 3.10 }}
 
     - uses: codecov/codecov-action@v1
