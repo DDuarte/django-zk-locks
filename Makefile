@@ -1,11 +1,11 @@
 .PHONY: flake8 test coverage style style_check
 
 style:
-	black --target-version=py39 zookeeper_locks tests setup.py
+	black --target-version=py310 zookeeper_locks tests setup.py
 	flake8 zookeeper_locks tests
 
 style_check:
-	black --target-version=py39 --check zookeeper_locks tests setup.py
+	black --target-version=py310 --check zookeeper_locks tests setup.py
 
 flake8:
 	flake8 zookeeper_locks tests

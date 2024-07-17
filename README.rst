@@ -107,4 +107,4 @@ To quickly test locally, kick off a Zookeeper docker container:
 
 List available environments with `tox -l` and then run the one you want/have:
 
-    tox -e py39-dj42
+    tox -e py310-dj42
