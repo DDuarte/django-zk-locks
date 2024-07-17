@@ -1,27 +1,27 @@
 =====================
-django-zookeeper-locks
+django-zk-locks
 =====================
 
-.. image:: https://github.com/DDuarte/django-zookeeper-locks/workflows/tests/badge.svg
-    :target: https://github.com/DDuarte/django-zookeeper-locks/actions?query=workflow%3Atests
+.. image:: https://github.com/DDuarte/django-zk-locks/workflows/tests/badge.svg
+    :target: https://github.com/DDuarte/django-zk-locks/actions?query=workflow%3Atests
     :alt: tests
 
-.. image:: https://codecov.io/gh/DDuarte/django-zookeeper-locks/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/DDuarte/django-zookeeper-locks
+.. image:: https://codecov.io/gh/DDuarte/django-zk-locks/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/DDuarte/django-zk-locks
    :alt: Test coverage status
 
-.. image:: https://img.shields.io/pypi/v/django-zookeeper-locks
-    :target: https://pypi.org/project/django-zookeeper-locks/
+.. image:: https://img.shields.io/pypi/v/django-zk-locks
+    :target: https://pypi.org/project/django-zk-locks/
     :alt: Current version on PyPi
 
-.. image:: https://img.shields.io/pypi/dm/django-zookeeper-locks
-    :target: https://pypi.org/project/django-zookeeper-locks/
+.. image:: https://img.shields.io/pypi/dm/django-zk-locks
+    :target: https://pypi.org/project/django-zk-locks/
     :alt: monthly downloads
 
-.. image:: https://img.shields.io/pypi/pyversions/django-zookeeper-locks
+.. image:: https://img.shields.io/pypi/pyversions/django-zk-locks
     :alt: PyPI - Python Version
 
-.. image:: https://img.shields.io/pypi/djversions/django-zookeeper-locks
+.. image:: https://img.shields.io/pypi/djversions/django-zk-locks
     :alt: PyPI - Django Version
 
 Distributed locks for Django using Zookeeper
@@ -29,13 +29,13 @@ Distributed locks for Django using Zookeeper
 Installation
 ------------
 
-    pip install django-zookeeper-locks
+    pip install django-zk-locks
 
 
 Usage
 -----
 
-`django-zookeeper-locks` exposes one single the `lock` contextmanager and the `locked` decorator.
+`django-zk-locks` exposes one single the `lock` contextmanager and the `locked` decorator.
 
 The `locked` decorator will wrap a django management command (subclasses of `django.core.management.base.BaseCommand`) or any function with the `lock` contextmanager:
 
