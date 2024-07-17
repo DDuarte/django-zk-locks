@@ -1,19 +1,18 @@
 import inspect
 import logging
-import threading
-import platform
 import os
-import time
+import platform
 import signal
+import threading
+import time
 from contextlib import contextmanager
 from functools import wraps
 
-from django.conf import settings
 from django import db
 from django.apps import apps
-from django.utils import timezone
+from django.conf import settings
 from django.core.management.base import BaseCommand
-
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 NOTSET = object()
@@ -43,19 +42,19 @@ def lock(
     :return:
     """
     # TODO migrate to contextlib.ContextDecorator once only py3 is used
-    _status_file('0')
+    _status_file("0")
 
     if not settings.DATABASE_LOCKS_ENABLED:
         logger.warning(
-            'database_locks currently disabled in settings, adjust DATABASE_LOCKS_ENABLED if not intended'
+            "database_locks currently disabled in settings, adjust DATABASE_LOCKS_ENABLED if not intended"
         )
         yield
         return
 
     if not db.connection.features.has_select_for_update:
         logger.error(
-            'database_locks cannot be used with the current database engine as it does not support SELECT .. FOR UPDATE, '
-            'proceed at your own risk'
+            "database_locks cannot be used with the current database engine as it does not support SELECT .. FOR UPDATE, "
+            "proceed at your own risk"
         )
         yield
         return
@@ -65,19 +64,19 @@ def lock(
     if lock_ttl_renew is NOTSET:
         lock_ttl_renew = settings.DATABASE_LOCKS_DEFAULT_TTL_RENEW
 
-    logger.info('acquiring lock %s' % lock_name)
+    logger.info("acquiring lock %s" % lock_name)
     lock = DBLock(lock_name, locked_by=locked_by)
 
-    _status_file('1')
+    _status_file("1")
 
     time_started = time.time()
     while True:
         if lock.acquire(lock_ttl=lock_ttl):
             break
         if not retry:
-            raise LockException('failed to acquire lock')
+            raise LockException("failed to acquire lock")
         if 0 < timeout < time.time() - time_started:
-            raise LockException('failed to acquire lock within timeout', timeout)
+            raise LockException("failed to acquire lock within timeout", timeout)
         time.sleep(retry)
 
     # set SIGUSR1 handler for lost lock exception
@@ -88,7 +87,7 @@ def lock(
         renew_thread = RenewThread(lock, lock_ttl, lock_ttl_renew)
         renew_thread.start()
 
-    _status_file('2')
+    _status_file("2")
     yield
 
     if renew_thread:
@@ -110,12 +109,12 @@ def locked(func_or_name=None, **lock_kwargs):
             name = func_or_name
         else:
             # TODO classes inside the same module with same function names will get same default name...
-            name = '{}.{}'.format(func.__module__, func.__name__)
+            name = "{}.{}".format(func.__module__, func.__name__)
 
         if inspect.isclass(func):
             if not issubclass(func, BaseCommand):
                 raise NotImplementedError(
-                    'only django BaseCommand subclasses are supported for now'
+                    "only django BaseCommand subclasses are supported for now"
                 )
 
             orig_handle = func.handle
@@ -146,11 +145,11 @@ class DBLock:
     def __init__(self, name, locked_by=None):
         self._name = name
         if locked_by is None:
-            self._locked_by = f'{platform.node()}.{os.getpid()}'
+            self._locked_by = f"{platform.node()}.{os.getpid()}"
         else:
             self._locked_by = locked_by
         # delay import model as class decorator runs before apps are ready
-        self._model = apps.get_model('database_locks', 'Lock')
+        self._model = apps.get_model("database_locks", "Lock")
         self.__last_owner = None
 
     @property
@@ -165,7 +164,7 @@ class DBLock:
             )
             if dblock is None:
                 logger.debug(
-                    'lock %s not yet created, trying to create (and acquire)',
+                    "lock %s not yet created, trying to create (and acquire)",
                     self._name,
                 )
                 # not protected by select_for_update so let's use just `.create`
@@ -177,16 +176,16 @@ class DBLock:
                         expires_at=timezone.now()
                         + timezone.timedelta(seconds=lock_ttl),
                     )
-                    logger.debug('lock %s (created and) acquired', self._name)
+                    logger.debug("lock %s (created and) acquired", self._name)
                     return True
                 except db.IntegrityError:
-                    logger.debug('could not create lock %s, try next time', self._name)
+                    logger.debug("could not create lock %s, try next time", self._name)
                     return False
             if dblock.active and dblock.locked_by != self._locked_by:
                 # it's DEBUG level but no need to spam...
                 if dblock.locked_by != self.__last_owner:
                     logger.debug(
-                        'lock %s active and owned by %s, try later',
+                        "lock %s active and owned by %s, try later",
                         self._name,
                         dblock.locked_by,
                     )
@@ -196,11 +195,11 @@ class DBLock:
             dblock.locked_by = self._locked_by
             dblock.expires_at = timezone.now() + timezone.timedelta(seconds=lock_ttl)
             dblock.save()
-            logger.debug('lock %s acquired/renewed', self._name)
+            logger.debug("lock %s acquired/renewed", self._name)
             return True
 
     def release(self):
-        logger.debug('releasing lock %s', self._name)
+        logger.debug("releasing lock %s", self._name)
         with db.transaction.atomic():
             dblock = (
                 self._model.objects.select_for_update().filter(name=self._name).first()
@@ -208,7 +207,7 @@ class DBLock:
             if dblock and dblock.active and dblock.locked_by == self._locked_by:
                 dblock.expires_at = None
                 dblock.save()
-                logger.debug('released lock %s', self._name)
+                logger.debug("released lock %s", self._name)
 
 
 class RenewThread(threading.Thread):
@@ -228,10 +227,10 @@ class RenewThread(threading.Thread):
         try:
             if self.__lock.acquire(lock_ttl=self.__ttl):
                 return
-            logger.error('failed to re-acquire lock %s', self.__lock.name)
+            logger.error("failed to re-acquire lock %s", self.__lock.name)
         except Exception:
             # any exception happens, treat it as failed to acquire...
-            logger.exception('some error re-acquiring lock %s', self.__lock.name)
+            logger.exception("some error re-acquiring lock %s", self.__lock.name)
 
         # not really needed, but doesn't hurt
         self.__stopped.set()
@@ -253,17 +252,17 @@ class LockException(Exception):
 
 
 def __default_lost_lock_cb(*_):
-    raise LockException('lost lock, terminating')
+    raise LockException("lost lock, terminating")
 
 
 def _status_file(message):
     if settings.DATABASE_LOCKS_STATUS_FILE is None:
         return
     try:
-        with open(settings.DATABASE_LOCKS_STATUS_FILE, 'w') as _f:
+        with open(settings.DATABASE_LOCKS_STATUS_FILE, "w") as _f:
             _f.write(message)
     except Exception:
         # log but don't break anything
         logger.exception(
-            'failed to update lock status file %s', settings.DATABASE_LOCKS_STATUS_FILE
+            "failed to update lock status file %s", settings.DATABASE_LOCKS_STATUS_FILE
         )

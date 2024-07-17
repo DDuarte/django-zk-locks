@@ -5,10 +5,10 @@ APP_SETTINGS = dict(STATUS_FILE=None, ENABLED=True, DEFAULT_TTL=10, DEFAULT_TTL_
 
 
 class DBLocksConfig(AppConfig):
-    name = 'database_locks'
+    name = "database_locks"
 
     def ready(self):
         for k, v in APP_SETTINGS.items():
-            _k = 'DATABASE_LOCKS_%s' % k
+            _k = "DATABASE_LOCKS_%s" % k
             if not hasattr(settings, _k):
                 setattr(settings, _k, v)
