@@ -12,9 +12,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10"]
 
     services:
       zookeeper:
@@ -24,21 +21,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
-
+        python-version: "3.10"
     - name: Install tox
-      run: |
-        pip install tox
-
+      run: pip install tox
     - name: Toxit
-      run: |
-        tox -v
-
-    - uses: codecov/codecov-action@v1
+      run: tox -v
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
       with:
-        fail_ci_if_error: true
-      if: ${{ matrix.python-version == 3.10 }}
+        token: ${{ secrets.CODECOV_TOKEN }}
