@@ -6,6 +6,7 @@ APP_SETTINGS = dict(STATUS_FILE=None, ENABLED=True, DEFAULT_TTL=60, DEFAULT_TTL_
 
 class DBLocksConfig(AppConfig):
     name = 'database_locks'
+    default_auto_field = 'django.db.models.AutoField'
 
     def ready(self):
         for k, v in APP_SETTINGS.items():
